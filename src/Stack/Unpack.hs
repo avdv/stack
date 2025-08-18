@@ -26,6 +26,7 @@ import           Stack.Runners ( ShouldReexec (..), withConfig )
 import           Stack.Types.Config ( Config (..), HasConfig, configL )
 import           Stack.Types.GlobalOpts ( GlobalOpts (..) )
 import           Stack.Types.Runner ( Runner, globalOptsL )
+import           System.IO (stderr, hPrint)
 
 -- | Type representing \'pretty\' exceptions thrown by functions exported by the
 -- "Stack.Unpack" module.
@@ -151,7 +152,9 @@ unpackPackages mSnapshot dest targets areCandidates = do
             in RPLIArchive candidateArchive candidateMetadata
           else RPLIHackage pir Nothing
     loc <- cplComplete <$> completePackageLocation rpli
-      `catch` \(_ :: SomeException) -> prettyThrowIO $ PackageLocationInvalid pir
+      `catch` \(e :: SomeException) -> do
+          liftIO $ hPrint stderr e
+          prettyThrowIO $ PackageLocationInvalid pir
     pure (loc, packageLocationIdent loc)
   (errs, locs2) <- partitionEithers <$> traverse toLoc names
   unless (null errs) $ prettyThrowM $ CouldNotParsePackageSelectors errs
