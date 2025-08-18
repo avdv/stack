@@ -24,7 +24,7 @@ jobs:
       - name: Build and test with Stack
         run: |
           stack build
-          cp (stack path --dist-dir)/build/stack/stack stack-${{ runner.os }}
+          cp $(stack path --dist-dir)/build/stack/stack stack-${{ runner.os }}
           #stack test
 
       - name: Upload artifacts
